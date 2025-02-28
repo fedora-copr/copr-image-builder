@@ -11,8 +11,8 @@ fi
 dnf -y update
 
 dnf -y copr enable @osbuild/image-builder
-dnf -y install wget image-builder
-wget https://raw.githubusercontent.com/fedora-copr/copr-image-builder/refs/heads/main/config.toml
+dnf -y install image-builder
+curl https://raw.githubusercontent.com/fedora-copr/copr-image-builder/refs/heads/main/config.toml > config.toml
 
 # We have a massive RAM but very limited disk space
 image-builder build "$IMAGE_TYPE" \
