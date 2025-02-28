@@ -1,0 +1,158 @@
+# Copr Builder blueprint
+#
+# This blueprint was based on an ansible playbook for provisioning Copr builders
+# https://pagure.io/fedora-infra/ansible/blob/main/f/roles/copr/backend/files/provision/provision_builder_tasks.yml
+#
+# Blueprint reference:
+# https://osbuild.org/docs/user-guide/blueprint-reference/
+
+name = "copr-builder"
+description = "Prepare Copr builder image"
+version = "0.0.1"
+distro = "fedora-41"
+
+
+# TODO disable zram SWAP on builders, it is too small, issue 2077
+
+# put infra repos into yum.repos.d
+[[customizations.repositories]]
+id = "infrastructure-tags"
+name = "Fedora Infrastructure tag $releasever - $basearch"
+baseurls = ["https://kojipkgs.fedoraproject.org/repos-dist/f$releasever-infra/latest/$basearch/"]
+enabled = true
+gpgcheck = true
+gpgkeys = ["https://infrastructure.fedoraproject.org/repo/infra/RPM-GPG-KEY-INFRA-TAGS"]
+
+# TODO work-around for wrongly generated ami
+# I guess we can remove this?
+
+# TODO disable updates-testing
+# TODO update the system
+# TODO disable updates-testing, could be restored after update
+# Can we assume the image is always fully updated and skip all of these?
+
+# TODO clean dnf cache before checking for updated packages
+# Can we skip this?
+
+# TODO set lower metadata expire time to enforce download
+
+# TODO fallback to the legacy crypto policies
+
+# TODO disable hcn-init service on ppc64le which implies NetworkManager-wait-online
+
+# install subscription-manager
+[[packages]]
+name = "subscription-manager"
+
+# install copr-builder and other latest packages
+[[packages]]
+name = "copr-builder"
+
+[[packages]]
+name = "python3-copr-common"
+
+# A new version of rpmlint fixes the following issue
+# https://pagure.io/FedoraReview/issue/461
+[[packages]]
+name = "rpmlint"
+
+# Tito 0.6.23 supports transitive submodule resolution
+# Requested on IRC by @abn
+[[packages]]
+name = "tito"
+
+[[packages]]
+name = "fedora-review"
+
+# Per report from @smooge, https://github.com/fedora-copr/copr/issues/2953
+[[packages]]
+name = "bc"
+
+# https://github.com/fedora-copr/copr/issues/3517
+[[packages]]
+name = "pyp2spec"
+
+
+# This syntax looks much better but unfortunatelly it has to be on the very top
+# of the file. Which is a problem because we want to enable repos first.
+# https://osbuild.org/docs/user-guide/blueprint-reference/#footnote-label
+
+# install subscription-manager
+# install copr-builder and other latest packages
+# packages = [
+#     { name = "subscription-manager" },
+#     { name = "copr-builder" },
+#     { name = "python3-copr-common" },
+
+#     # A new version of rpmlint fixes the following issue
+#     # https://pagure.io/FedoraReview/issue/461
+#     { name = "rpmlint" },
+
+#     # Tito 0.6.23 supports transitive submodule resolution
+#     # Requested on IRC by @abn
+#     { name = "tito" },
+
+#     # We want fedora-review 0.10.0 which generates `review.json` file
+#     # This is important for the fedora-review-service
+#     # https://github.com/FrostyX/fedora-review-service/issues/30
+#     { name = "fedora-review" },
+
+#     # Per report from @smooge, https://github.com/fedora-copr/copr/issues/2953
+#     { name = "bc" },
+
+#     # https://github.com/fedora-copr/copr/issues/3517
+#     { name = "pyp2spec" },
+# ]
+
+
+# TODO Activate Red Hat Subscription
+
+# TODO make sure the enable-swap service has already finished
+
+# TODO Collect facts about builder hardware
+# We can prrobably skip this, it looks like starting_builder task
+
+
+# TODO run /bin/copr-update-builder from copr-builder package
+
+# [[customizations.group]]
+# name = "mock"
+
+# mockbuilder user
+[[customizations.user]]
+name = "mockbuilder"
+password = "mockbuilder"  # TODO Only for testing, remove afterward
+groups = ["mock"]
+
+# mockbuilder .ssh
+[[customizations.directories]]
+path = "/home/mockbuilder/.ssh"
+mode = "0700"
+user = "mockbuilder"
+group = "mockbuilder"
+ensure_parents = false
+
+# TODO mockbuilder authorized_keys
+
+# TODO setup 10x more fds in limits.conf
+
+# TODO disable core dumps
+
+# TODO Remove %_install_langs from /etc/rpm/macros.image-language-conf
+
+# Disable DNF makecache timer
+# Disable DNF makecache service
+# stop and disable systemd-oomd, rhbz 2051154
+[customizations.services]
+disabled = ["systemd-oomd", "dnf-makecache.timer", "dnf-makecache.service"]
+
+# TODO detect package versions
+# Can we remove this?
+
+# TODO assure up2date packages
+
+# Hotfix for https://github.com/fedora-copr/copr/issues/3140
+# Hotfix for https://github.com/fedora-copr/copr/issues/3146
+# TODO Install custom copr-rpmbuild configs
+
+# TODO Set up motd for builder
