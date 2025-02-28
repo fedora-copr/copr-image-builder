@@ -14,13 +14,16 @@ dnf -y copr enable @osbuild/image-builder
 dnf -y install image-builder
 curl https://raw.githubusercontent.com/fedora-copr/copr-image-builder/refs/heads/main/config.toml > config.toml
 
-# We have a massive RAM but very limited disk space
+# We don't have much disk space on the root partition, let's abuse
+# copr-rpmbuild directory
+workdir="/var/lib/copr-rpmbuild/"
+
 image-builder build "$IMAGE_TYPE" \
     --blueprint ./config.toml \
-    --output-dir /tmp \
-    --cache /tmp \
-    --data-dir /tmp
+    --output-dir "$workdir" \
+    --cache "$workdir" \
+    --data-dir "$workdir"
 
 echo "Generated image:"
-find /tmp/ -name disk.qcow2
-find /tmp/ -name image.raw
+find "$workdir" -name disk.qcow2
+find "$workdir" -name image.raw
