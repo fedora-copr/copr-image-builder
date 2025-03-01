@@ -12,7 +12,42 @@ version = "0.0.1"
 distro = "fedora-41"
 
 
+# Install subscription-manager
+# Install copr-builder and other latest packages
+# Don't worry that this is on the top, and we enable additional repositories
+# later. The blueprint is not evaluated from the top but in an order that
+# Image Builder thinks is best. And we cannot move it lower because this syntax
+# needs to be at the very top of the file
+# https://osbuild.org/docs/user-guide/blueprint-reference/#footnote-label
+packages = [
+    { name = "subscription-manager" },
+    { name = "copr-builder" },
+    { name = "python3-copr-common" },
+
+    # A new version of rpmlint fixes the following issue
+    # https://pagure.io/FedoraReview/issue/461
+    { name = "rpmlint" },
+
+    # Tito 0.6.23 supports transitive submodule resolution
+    # Requested on IRC by @abn
+    { name = "tito" },
+
+    # We want fedora-review 0.10.0 which generates `review.json` file
+    # This is important for the fedora-review-service
+    # https://github.com/FrostyX/fedora-review-service/issues/30
+    { name = "fedora-review" },
+
+    # Per report from @smooge, https://github.com/fedora-copr/copr/issues/2953
+    { name = "bc" },
+
+    # https://github.com/fedora-copr/copr/issues/3517
+    { name = "pyp2spec" },
+]
+
+
 # TODO disable zram SWAP on builders, it is too small, issue 2077
+# Not possible to do, I guess this is a related issue:
+# https://github.com/osbuild/fedora-blueprints/issues/6
 
 # put infra repos into yum.repos.d
 [[customizations.repositories]]
@@ -35,88 +70,17 @@ gpgkeys = ["https://infrastructure.fedoraproject.org/repo/infra/RPM-GPG-KEY-INFR
 # Can we skip this?
 
 # TODO set lower metadata expire time to enforce download
+# Can we temporarily move this to runtime?
 
 # TODO fallback to the legacy crypto policies
-
-# TODO disable hcn-init service on ppc64le which implies NetworkManager-wait-online
-
-# install subscription-manager
-[[packages]]
-name = "subscription-manager"
-
-# install copr-builder and other latest packages
-[[packages]]
-name = "copr-builder"
-
-[[packages]]
-name = "python3-copr-common"
-
-# A new version of rpmlint fixes the following issue
-# https://pagure.io/FedoraReview/issue/461
-[[packages]]
-name = "rpmlint"
-
-# Tito 0.6.23 supports transitive submodule resolution
-# Requested on IRC by @abn
-[[packages]]
-name = "tito"
-
-[[packages]]
-name = "fedora-review"
-
-# Per report from @smooge, https://github.com/fedora-copr/copr/issues/2953
-[[packages]]
-name = "bc"
-
-# https://github.com/fedora-copr/copr/issues/3517
-[[packages]]
-name = "pyp2spec"
-
-
-# This syntax looks much better but unfortunatelly it has to be on the very top
-# of the file. Which is a problem because we want to enable repos first.
-# https://osbuild.org/docs/user-guide/blueprint-reference/#footnote-label
-
-# install subscription-manager
-# install copr-builder and other latest packages
-# packages = [
-#     { name = "subscription-manager" },
-#     { name = "copr-builder" },
-#     { name = "python3-copr-common" },
-
-#     # A new version of rpmlint fixes the following issue
-#     # https://pagure.io/FedoraReview/issue/461
-#     { name = "rpmlint" },
-
-#     # Tito 0.6.23 supports transitive submodule resolution
-#     # Requested on IRC by @abn
-#     { name = "tito" },
-
-#     # We want fedora-review 0.10.0 which generates `review.json` file
-#     # This is important for the fedora-review-service
-#     # https://github.com/FrostyX/fedora-review-service/issues/30
-#     { name = "fedora-review" },
-
-#     # Per report from @smooge, https://github.com/fedora-copr/copr/issues/2953
-#     { name = "bc" },
-
-#     # https://github.com/fedora-copr/copr/issues/3517
-#     { name = "pyp2spec" },
-# ]
-
-
-# TODO Activate Red Hat Subscription
-
-# TODO make sure the enable-swap service has already finished
+# https://fedoraproject.org/wiki/Changes/StrongCryptoSettings
+# Can we temporarily move this to runtime?
 
 # TODO Collect facts about builder hardware
-# We can prrobably skip this, it looks like starting_builder task
-
+# We can probably skip this, it looks like starting_builder task
 
 # TODO run /bin/copr-update-builder from copr-builder package
-
-# [[customizations.group]]
-# name = "mock"
+# Can we move this to runtime?
 
 # mockbuilder user
 [[customizations.user]]
@@ -132,27 +96,52 @@ user = "mockbuilder"
 group = "mockbuilder"
 ensure_parents = false
 
-# TODO mockbuilder authorized_keys
+# mockbuilder authorized_keys
+# TODO This is correct according to the documentation but doesn't create the
+# key. Maybe a bug? Already reported.
+[[customizations.sshkey]]
+user = "mockbuilder"
+key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCeTO0ddXuhDZYM9HyM0a47aeV2yIVWhTpddrQ7/RAIs99XyrsicQLABzmdMBfiZnP0FnHBF/e+2xEkT8hHJpX6bX81jjvs2bb8KP18Nh8vaXI3QospWrRygpu1tjzqZT0Llh4ZVFscum8TrMw4VWXclzdDw6x7csCBjSttqq8F3iTJtQ9XM9/5tCAAOzGBKJrsGKV1CNIrfUo5CSzY+IUVIr8XJ93IB2ZQVASK34T/49egmrWlNB32fqAbDMC+XNmobgn6gO33Yq5Ly7Dk4kqTUx2TEaqDkZfhsVu0YcwV81bmqsltRvpj6bIXrEoMeav7nbuqKcPLTxWEY/2icePF"
 
-# TODO setup 10x more fds in limits.conf
+# setup 10x more fds in limits.conf
+[[customizations.files]]
+path = "/etc/security/limits.d/50-copr-fds.conf"
+mode = "0644"
+user = "root"
+group = "root"
+data = """
+* soft nofile 10240
+* hard nofile 10240
+"""
 
 # TODO disable core dumps
+# Can we temporarily move this to runtime?
 
 # TODO Remove %_install_langs from /etc/rpm/macros.image-language-conf
+# Can we temporarily move this to runtime?
 
 # Disable DNF makecache timer
 # Disable DNF makecache service
-# stop and disable systemd-oomd, rhbz 2051154
+# Disable hcn-init service on ppc64le which implies NetworkManager-wait-online
+# Stop and disable systemd-oomd, rhbz 2051154
 [customizations.services]
-disabled = ["systemd-oomd", "dnf-makecache.timer", "dnf-makecache.service"]
+disabled = [
+    "systemd-oomd",
+    "dnf-makecache.timer",
+    "dnf-makecache.service",
+    "hcn-init.service",
+]
 
 # TODO detect package versions
 # Can we remove this?
 
 # TODO assure up2date packages
+# Can we move this to runtime?
 
 # Hotfix for https://github.com/fedora-copr/copr/issues/3140
 # Hotfix for https://github.com/fedora-copr/copr/issues/3146
 # TODO Install custom copr-rpmbuild configs
+# Can we move this to runtime to avoid duplicity?
 
 # TODO Set up motd for builder
+# Can we move this to runtime?
