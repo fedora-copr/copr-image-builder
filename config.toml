@@ -104,6 +104,15 @@ ensure_parents = false
 user = "mockbuilder"
 key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCeTO0ddXuhDZYM9HyM0a47aeV2yIVWhTpddrQ7/RAIs99XyrsicQLABzmdMBfiZnP0FnHBF/e+2xEkT8hHJpX6bX81jjvs2bb8KP18Nh8vaXI3QospWrRygpu1tjzqZT0Llh4ZVFscum8TrMw4VWXclzdDw6x7csCBjSttqq8F3iTJtQ9XM9/5tCAAOzGBKJrsGKV1CNIrfUo5CSzY+IUVIr8XJ93IB2ZQVASK34T/49egmrWlNB32fqAbDMC+XNmobgn6gO33Yq5Ly7Dk4kqTUx2TEaqDkZfhsVu0YcwV81bmqsltRvpj6bIXrEoMeav7nbuqKcPLTxWEY/2icePF"
 
+# This is a workaround for the broken `customizations.sshkey`, we should remove
+# it once fixed
+[[customizations.files]]
+path = "/home/mockbuilder/.ssh/authorized_keys"
+mode = "0600"
+user = "mockbuilder"
+group = "mockbuilder"
+data = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCeTO0ddXuhDZYM9HyM0a47aeV2yIVWhTpddrQ7/RAIs99XyrsicQLABzmdMBfiZnP0FnHBF/e+2xEkT8hHJpX6bX81jjvs2bb8KP18Nh8vaXI3QospWrRygpu1tjzqZT0Llh4ZVFscum8TrMw4VWXclzdDw6x7csCBjSttqq8F3iTJtQ9XM9/5tCAAOzGBKJrsGKV1CNIrfUo5CSzY+IUVIr8XJ93IB2ZQVASK34T/49egmrWlNB32fqAbDMC+XNmobgn6gO33Yq5Ly7Dk4kqTUx2TEaqDkZfhsVu0YcwV81bmqsltRvpj6bIXrEoMeav7nbuqKcPLTxWEY/2icePF"
+
 # setup 10x more fds in limits.conf
 [[customizations.files]]
 path = "/etc/security/limits.d/50-copr-fds.conf"
