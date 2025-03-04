@@ -124,10 +124,5 @@ disabled = [
 # TODO assure up2date packages
 # Can we move this to runtime?
 
-# Hotfix for https://github.com/fedora-copr/copr/issues/3140
-# Hotfix for https://github.com/fedora-copr/copr/issues/3146
-# TODO Install custom copr-rpmbuild configs
-# Can we move this to runtime to avoid duplicity?
-
 # TODO Set up motd for builder
 # Can we move this to runtime?
