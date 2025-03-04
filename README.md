@@ -41,6 +41,19 @@ dnf install image-builder
 sudo image-builder build qcow2 --blueprint ./config.toml
 find -name disk.qcow2
 ```
+
+Run `virt-manager` and boot the image.
+
+
+## Testing bootc imagel locally
+
+```
+dnf copr enable @osbuild/image-builder
+dnf install image-builder
+./copr-build-image-bootc.sh
+find -name disk.qcow2
+```
+
 Run `virt-manager` and boot the image.
 
 
