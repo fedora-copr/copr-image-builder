@@ -31,11 +31,39 @@ RUN echo "metadata_expire=1h" >> /etc/dnf/dnf.conf
 # https://fedoraproject.org/wiki/Changes/StrongCryptoSettings
 RUN update-crypto-policies --set DEFAULT:SHA1
 
+# TODO Can we use some syntax that would allow comments for the packages?
+# config.toml does this, can we remove?
+# RUN dnf -y install \
+#     subscription-manager \
+#     copr-builder \
+#     python3-copr-common \
+#     rpmlint \
+#     tito \
+#     fedora-review \
+#     bc \
+#     pyp2spec \
+#     && dnf -y clean all
+
 # TODO Collect facts about builder hardware
 # We can probably skip this, it looks like starting_builder task
 
 # Run /bin/copr-update-builder from copr-builder package
 RUN /usr/bin/copr-update-builder
+
+# mockbuild user
+# TODO Password only for testing, remove afterward
+# RUN useradd mockbuilder -G mock -p mockbuilder
+# config.toml does this, can we remove?
+
+# TODO Password only for testing, remove afterward
+# RUN echo "root:root" | chpasswd
+# config.toml does this, can we remove?
+
+# TODO root authorized_keys
+# config.toml does this, can we remove?
+
+# TODO setup 10x more fds in limits.conf
+# config.toml does this, can we remove?
 
 # Disable core dumps
 RUN echo "[Coredump]\nStorage=none" >> /etc/systemd/coredump.conf
