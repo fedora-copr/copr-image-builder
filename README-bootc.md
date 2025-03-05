@@ -31,6 +31,7 @@ See https://quay.io/repository/copr/builder
 ## Building on HV
 
 ```
+rm -rf /var/lib/containers
 mkdir /var/lib/copr-rpmbuild/containers
 ln -s /var/lib/copr-rpmbuild/containers /var/lib/containers
 cd /var/lib/copr-rpmbuild
