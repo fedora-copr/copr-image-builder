@@ -28,3 +28,7 @@ sudo podman run \
      --rootfs xfs \
      --use-librepo=True \
      $IMAGE
+
+echo "Generated image:"
+find "$workdir" -name disk.qcow2
+find "$workdir" -name image.raw
