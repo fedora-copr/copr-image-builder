@@ -8,7 +8,7 @@ if [ "$WHERE" == "local" ]; then
     sudo podman build --network host -t $IMAGE . || exit 1
 else
     IMAGE="quay.io/copr/builder"
-    sudo podman pull $IMAGE
+    sudo podman pull $IMAGE || exit 1
 fi
 
 
