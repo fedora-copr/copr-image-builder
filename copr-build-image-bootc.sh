@@ -27,7 +27,8 @@ sudo podman run \
      --type qcow2 \
      --rootfs xfs \
      --use-librepo=True \
-     $IMAGE
+     $IMAGE \
+     || exit 1
 
 echo "Generated image:"
 find output -name disk.qcow2
