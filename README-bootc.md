@@ -21,5 +21,20 @@ Not the `qcow2` or AMI, but the container image.
 
 ```
 sudo podman login quay.io
-sudo podman push localhost/copr-builder:latest quay.io/copr/builder
+sudo podman push localhost/copr-builder quay.io/copr/builder:builder
 ```
+
+See https://quay.io/repository/copr/builder
+
+
+## Building on HV
+
+```
+git clone https://github.com/fedora-copr/copr-image-builder.git
+cd copr-image-builder
+podman pull quay.io/copr/builder:builder
+# TODO replace image name in the script
+./copr-build-image-bootc.sh
+```
+
+This will produce the final `qcow2` or AMI.
