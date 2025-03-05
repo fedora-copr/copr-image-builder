@@ -1,7 +1,18 @@
 #!/bin/bash
 
+# Expected values are "local" and "remote"
+WHERE=${1:-local}
+
+if [ "$WHERE" == "local" ]; then
+    IMAGE="localhost/copr-builder"
+    sudo podman build --network host -t $IMAGE . || exit 1
+else
+    IMAGE="quay.io/copr/builder"
+    sudo podman pull $IMAGE
+fi
+
+
 mkdir -p output
-sudo podman build --network host -t copr-builder . || exit 1
 sudo podman pull quay.io/centos-bootc/centos-bootc:stream9 || exit 1
 sudo podman run \
      --rm \
@@ -16,4 +27,4 @@ sudo podman run \
      --type qcow2 \
      --rootfs xfs \
      --use-librepo=True \
-     localhost/copr-builder
+     $IMAGE
