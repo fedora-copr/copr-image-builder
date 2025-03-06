@@ -8,7 +8,7 @@ See the main repository README for more details.
 ```
 dnf copr enable @osbuild/image-builder
 dnf install image-builder
-./copr-build-image-bootc.sh local
+IMAGE_TYPE=qcow2 BUILD_OCI=true ./copr-build-image-bootc.sh
 find -name disk.qcow2
 ```
 
@@ -37,7 +37,7 @@ ln -s /var/lib/copr-rpmbuild/containers /var/lib/containers
 cd /var/lib/copr-rpmbuild
 git clone https://github.com/fedora-copr/copr-image-builder.git
 cd copr-image-builder
-./copr-build-image-bootc.sh remote
+IMAGE_TYPE=qcow2 BUILD_OCI=true ./copr-build-image-bootc.sh
 ```
 
 This will produce the final `qcow2` or AMI.

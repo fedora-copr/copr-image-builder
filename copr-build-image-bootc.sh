@@ -1,9 +1,17 @@
 #!/bin/bash
 
-# Expected values are "local" and "remote"
-WHERE=${1:-local}
+if [ -z "${IMAGE_TYPE}" ]; then
+    echo "Set IMAGE_TYPE to qcow2 or ami"
+    exit 1
+fi
 
-if [ "$WHERE" == "local" ]; then
+if [ -z "${BUILD_OCI}" ]; then
+    echo "Set BUILD_OCI to true to build locally or false to pull from registry"
+    exit 1
+fi
+
+
+if [ "$BUILD_OCI" == true ]; then
     IMAGE="localhost/copr-builder"
     sudo podman build --network host -t $IMAGE . || exit 1
 else
@@ -23,7 +31,7 @@ sudo podman run \
      -v ./output:/output \
      -v /var/lib/containers/storage:/var/lib/containers/storage \
      quay.io/centos-bootc/bootc-image-builder:latest \
-     --type qcow2 \
+     --type "$IMAGE_TYPE" \
      --rootfs xfs \
      --use-librepo=True \
      $IMAGE \
