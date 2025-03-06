@@ -39,4 +39,4 @@ sudo podman run \
 
 echo "Generated image:"
 find output -name disk.qcow2
-find output -name image.raw
+find output -name disk.raw
