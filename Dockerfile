@@ -79,3 +79,12 @@ RUN echo "[Coredump]\nStorage=none" >> /etc/systemd/coredump.conf
 
 # Set up motd for builder
 RUN copr-builder help > /etc/motd || :
+
+# We set the correct file ownership in copr-rpmbuild.spec but through some
+# systemd-tmpfiles magic, it gets overwritten and the files gets owned by
+# root:root. We need to explicitly tell it not to do so.
+RUN cat > /etc/tmpfiles.d/copr-rpmbuild.conf <<EOF
+d /var/lib/copr-rpmbuild 0775 root mock -
+d /var/lib/copr-rpmbuild/results 0775 root mock -
+d /var/lib/copr-rpmbuild/workspace 0775 root mock -
+EOF
