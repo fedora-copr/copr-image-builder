@@ -101,18 +101,20 @@ EOF
 # TODO Remove %_install_langs from /etc/rpm/macros.image-language-conf
 # Can we remove this?
 
-# Disable DNF makecache timer
-# Disable DNF makecache service
-# Disable hcn-init service on ppc64le which implies NetworkManager-wait-online
 # Stop and disable systemd-oomd, rhbz 2051154
-# [customizations.services]
-# disabled = [
-#     "systemd-oomd",
-#     "dnf-makecache.timer",
-#     "dnf-makecache.service",
-#     "hcn-init.service",
-# ]
 RUN systemctl disable systemd-oomd
+
+# Disable DNF makecache timer
+RUN systemctl disable dnf-makecache.timer
+
+# Disable DNF makecache service
+RUN systemctl disable dnf-makecache.service
+
+# NetworkManager-wait-online takes too long on VMS on our hypervisors.  And we
+# don't seem to need hcn-init service triggering that.
+# Disable hcn-init service on ppc64le which implies NetworkManager-wait-online
+# RUN systemctl disable hcn-init.service
+# TODO The service isn't installed on the system, can we remove?
 
 # TODO detect package versions
 # Can we remove this?
