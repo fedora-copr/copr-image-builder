@@ -145,3 +145,14 @@ kargs = [
 ]
 EOF
 
+# Transient (writable but changes are deleted on reboot) root filesystem
+RUN cat >> /usr/lib/ostree/prepare-root.conf <<EOF
+[root]
+transient=true
+EOF
+
+# See the transient-root example
+# https://gitlab.com/fedora/bootc/examples/-/blob/main/transient-root/
+RUN set -x; \
+    kver=$(cd /usr/lib/modules && echo *); \
+    dracut -vf /usr/lib/modules/$kver/initramfs.img $kver
