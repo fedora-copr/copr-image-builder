@@ -133,3 +133,15 @@ d /var/lib/copr-rpmbuild 0775 root mock -
 d /var/lib/copr-rpmbuild/results 0775 root mock -
 d /var/lib/copr-rpmbuild/workspace 0775 root mock -
 EOF
+
+# Obscure hacks from praiskup/helpers
+# https://github.com/praiskup/helpers/blob/main/bin/eimg-cleanup-online.in
+RUN cat > /usr/lib/bootc/kargs.d/01-hacks.toml <<EOF
+kargs = [
+    "no_timer_check",
+    "net.ifnames=0",
+    "console=tty1",
+    "console=ttyS0,115200n8",
+]
+EOF
+
