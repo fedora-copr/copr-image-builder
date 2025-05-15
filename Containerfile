@@ -47,6 +47,7 @@ RUN dnf -y install \
     fedora-review \
     bc \
     pyp2spec \
+    python3-libdnf5 \
     && dnf -y clean all
 
 # TODO Collect facts about builder hardware
