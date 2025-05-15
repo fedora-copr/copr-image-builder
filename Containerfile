@@ -187,3 +187,18 @@ test -e /config/eimg-early-script.sh || { umount /config && exit 0 ; }
 sh -x /config/eimg-early-script.sh
 EOF
 RUN chmod 0755 /etc/rc.d/rc.local
+
+# Install enable-swap.service
+# From create_swap_file.yml
+RUN curl https://pagure.io/fedora-infra/ansible/raw/main/f/roles/copr/backend/files/provision/files/enable-swap.service \
+    > /etc/systemd/system/enable-swap.service
+
+# Install enable-swap.sh
+# From create_swap_file.yml
+RUN curl https://pagure.io/fedora-infra/ansible/raw/main/f/roles/copr/backend/files/provision/files/enable-swap.sh \
+    > /usr/local/sbin/enable-swap.sh
+RUN chmod 0755 /usr/local/sbin/enable-swap.sh
+
+# Enable enable-swap.sh
+# From create_swap_file.yml
+RUN systemctl enable enable-swap
