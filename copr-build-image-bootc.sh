@@ -10,13 +10,18 @@ if [ -z "${BUILD_OCI}" ]; then
     exit 1
 fi
 
+if [ -z "${ARCH}" ]; then
+    echo "Set ARCH to x86_64, aarch64, ppc64le, or s390x"
+    exit 1
+fi
+
 
 if [ "$BUILD_OCI" == true ]; then
     IMAGE="localhost/copr-builder"
-    sudo podman build --network host -t $IMAGE . || exit 1
+    sudo podman build --platform="linux/$ARCH" --network host -t $IMAGE . || exit 1
 else
     IMAGE="quay.io/copr/builder"
-    sudo podman pull $IMAGE || exit 1
+    sudo podman pull --platform="linux/$ARCH" $IMAGE || exit 1
 fi
 
 
@@ -33,6 +38,7 @@ sudo podman run \
      --type "$IMAGE_TYPE" \
      --rootfs xfs \
      --use-librepo=True \
+     --target-arch "$ARCH" \
      $IMAGE \
      || exit 1
 

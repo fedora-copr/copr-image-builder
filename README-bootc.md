@@ -3,13 +3,10 @@
 See the main repository README for more details.
 
 
-## Testing bootc imagel locally
+## Testing bootc image locally
 
 ```
-dnf copr enable @osbuild/image-builder
-dnf install image-builder
-IMAGE_TYPE=qcow2 BUILD_OCI=true ./copr-build-image-bootc.sh
-IMAGE_TYPE=ami BUILD_OCI=true ./copr-build-image-bootc.sh
+IMAGE_TYPE=qcow2 BUILD_OCI=true ARCH=x86_64 ./copr-build-image-bootc.sh
 ```
 
 Run `virt-manager` and boot the image.
@@ -20,10 +17,12 @@ Run `virt-manager` and boot the image.
 ### HV x86_64
 
 ```bash
+# Laptop
+IMAGE_TYPE=qcow2 BUILD_OCI=true ARCH=x86_64 ./copr-build-image-bootc.sh
 scp output/qcow2/disk.qcow2 copr@vmhost-x86-copr02.rdu-cc.fedoraproject.org:/tmp/
 ssh copr@vmhost-x86-copr02.rdu-cc.fedoraproject.org
 
-# On HV
+# HV
 /home/copr/provision/upload-qcow2-images /tmp/disk.qcow2
 rm /tmp/disk.qcow2
 ```
@@ -32,11 +31,27 @@ Edit `inventory/group_vars/copr_dev_aws` in the Fedora Infra Ansible repo and
 set `copr_builder_images.hypervisor.x86_64`, commit, push, run playbook, remove
 unused builders, etc.
 
+
+### HV and OSUOSL ppc64le
+
+```bash
+# Laptop
+IMAGE_TYPE=qcow2 BUILD_OCI=true ARCH=ppc64le ./copr-build-image-bootc.sh
+scp output/qcow2/disk.qcow2 copr@vmhost-p08-copr01.rdu-cc.fedoraproject.org:/tmp
+ssh copr@vmhost-p08-copr01.rdu-cc.fedoraproject.org
+
+# HV
+/home/copr/provision/upload-qcow2-images /tmp/disk.qcow2
+rm /tmp/disk.qcow2
+```
+
+
 ### AWS x86_64
 
 Still WIP:
 
 ```
+IMAGE_TYPE=ami BUILD_OCI=true ARCH=x86_64 ./copr-build-image-bootc.sh
 image-builder upload \
     ./output/image/disk.raw \
     --to aws \
