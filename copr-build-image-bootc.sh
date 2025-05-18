@@ -21,7 +21,6 @@ fi
 
 
 mkdir -p output
-sudo podman pull quay.io/centos-bootc/centos-bootc:stream9 || exit 1
 sudo podman run \
      --rm \
      -it \
