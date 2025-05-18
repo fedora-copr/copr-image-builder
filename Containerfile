@@ -193,6 +193,12 @@ RUN chmod 0755 /etc/rc.d/rc.local
 RUN curl https://pagure.io/fedora-infra/ansible/raw/main/f/roles/copr/backend/files/provision/files/enable-swap.service \
     > /etc/systemd/system/enable-swap.service
 
+# On F42 there is no /usr/local/sbin directory anymore but it is still in the
+# PATH. We should use different location but at this moment, we are trying to
+# be as much consistent with libvirt-new, praiskup/helpers, and provision
+# playbook, as posible
+RUN mkdir -p /usr/local/sbin
+
 # Install enable-swap.sh
 # From create_swap_file.yml
 RUN curl https://pagure.io/fedora-infra/ansible/raw/main/f/roles/copr/backend/files/provision/files/enable-swap.sh \
