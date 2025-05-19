@@ -3,7 +3,7 @@
 # First we build an image from this Dockerfile, then we use Image Builder
 # config.toml blueprint to finish the image.
 
-FROM --platform=linux/s390x quay.io/fedora/fedora-bootc:42
+FROM quay.io/fedora/fedora-bootc:42
 
 # Disable zram SWAP on builders, it is too small, issue 2077
 RUN dnf -y remove zram-generator-defaults && dnf -y clean all
