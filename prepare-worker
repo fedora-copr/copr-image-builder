@@ -1,0 +1,10 @@
+#! /bin/sh -x
+
+# Prepare normal Fedora Copr builder machines for building qcow2 images with
+# bootc/podman.
+
+device=$(swapon | grep /dev | cut -d' ' -f1)
+swapoff -a  # disable swap
+mkfs.ext4 -F "$device" -L containers
+mount "$device" /var/lib/containers
+restorecon -RvF /var/lib/containers
