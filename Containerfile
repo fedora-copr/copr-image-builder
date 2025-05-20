@@ -57,8 +57,7 @@ RUN dnf -y install \
 RUN /usr/bin/copr-update-builder
 
 # mockbuild user
-# TODO Password only for testing, remove afterward
-RUN useradd mockbuilder -G mock -p mockbuilder
+RUN useradd mockbuilder -G mock
 
 # mockbuilder .ssh
 RUN mkdir /home/mockbuilder/.ssh \
@@ -69,8 +68,9 @@ RUN mkdir /home/mockbuilder/.ssh \
 RUN echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCeTO0ddXuhDZYM9HyM0a47aeV2yIVWhTpddrQ7/RAIs99XyrsicQLABzmdMBfiZnP0FnHBF/e+2xEkT8hHJpX6bX81jjvs2bb8KP18Nh8vaXI3QospWrRygpu1tjzqZT0Llh4ZVFscum8TrMw4VWXclzdDw6x7csCBjSttqq8F3iTJtQ9XM9/5tCAAOzGBKJrsGKV1CNIrfUo5CSzY+IUVIr8XJ93IB2ZQVASK34T/49egmrWlNB32fqAbDMC+XNmobgn6gO33Yq5Ly7Dk4kqTUx2TEaqDkZfhsVu0YcwV81bmqsltRvpj6bIXrEoMeav7nbuqKcPLTxWEY/2icePF" \
     > /home/mockbuilder/.ssh/authorized_keys
 
-# TODO Password only for testing, remove afterward
-RUN echo "root:root" | chpasswd
+# Passwords only for testing, remove afterward
+# RUN echo "root:root" | chpasswd
+# RUN echo "mockbuilder:mockbuilder" | chpasswd
 
 # By default, there is some magic making /root to be a symlink to /var/roothome
 # which is somehow ... immutable or whatever. Any attempt to create a file or
