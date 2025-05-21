@@ -6,13 +6,105 @@ See the main repository README for more details.
 ## Testing bootc image locally
 
 ```
-IMAGE_TYPE=qcow2 BUILD_OCI=true ARCH=x86_64 ./copr-build-image-bootc.sh
+IMAGE_TYPE=qcow2 BUILD_OCI=true ./copr-build-image-bootc.sh
 ```
 
 Run `virt-manager` and boot the image.
 
 
-## Deploying to STG
+## x86_64 qcow2
+
+```
+# su - resalloc
+$ resalloc ticket --tag hypervisor_x86_64
+$ resalloc ticket-wait 751
+$ IP=2620:52:3:1:dead:beef:cafe:c1c1
+$ ssh root@$IP
+# git clone https://github.com/fedora-copr/copr-image-builder.git
+# cd copr-image-builder
+# ./prepare-worker
+# IMAGE_TYPE=qcow2 BUILD_OCI=true ./copr-build-image-bootc.sh
+# exit
+$ scp -6 root@[$IP]:/root/copr-image-builder/output/qcow2/disk.qcow2 /var/lib/copr/public_html/images/disk.x86_64.qcow
+$ resalloc ticket-close 751
+```
+
+## x86_64 AMI
+
+```
+# su - resalloc
+$ resalloc ticket --tag hypervisor_x86_64
+$ resalloc ticket-wait 751
+$ IP=2620:52:3:1:dead:beef:cafe:c1c1
+$ ssh root@$IP
+# git clone https://github.com/fedora-copr/copr-image-builder.git
+# cd copr-image-builder
+# ./prepare-worker
+# IMAGE_TYPE=qcow2 BUILD_OCI=true ./copr-build-image-bootc.sh
+# IMAGE_TYPE=ami BUILD_OCI=true ./copr-build-image-bootc.sh
+# exit
+$ scp -6 root@[$IP]:/root/copr-image-builder/output/image/disk.raw /var/lib/copr/public_html/images/disk.x86_64.raw
+$ resalloc ticket-close 751
+
+
+## aarch64
+
+```
+# su - resalloc
+$ resalloc ticket --tag arch_aarch64_native
+$ resalloc ticket-wait 751
+$ IP=100.26.46.8
+$ ssh root@$IP
+# git clone https://github.com/fedora-copr/copr-image-builder.git
+# cd copr-image-builder
+# ./prepare-worker
+# IMAGE_TYPE=ami BUILD_OCI=true ./copr-build-image-bootc.sh
+# exit
+$ scp root@$IP:/root/copr-image-builder/output/image/disk.raw /var/lib/copr/public_html/images/disk.aarch64.raw
+$ resalloc ticket-close 751
+```
+
+
+## ppc64le
+
+```
+# su - resalloc
+$ resalloc ticket --tag hypervisor --tag arch_ppc64le
+$ resalloc ticket-wait 751
+$ IP=2620:52:3:1:dead:beef:cafe:c1c1
+$ ssh root@$IP
+# git clone https://github.com/fedora-copr/copr-image-builder.git
+# cd copr-image-builder
+# ./prepare-worker
+# IMAGE_TYPE=qcow2 BUILD_OCI=true ./copr-build-image-bootc.sh
+# exit
+$ scp -6 root@[$IP]:/root/copr-image-builder/output/qcow2/disk.qcow2 /var/lib/copr/public_html/images/disk.ppc64le.qcow2
+$ resalloc ticket-close 751
+```
+
+
+## s390x
+
+```
+# su - resalloc
+$ resalloc ticket --tag arch_s390x_native
+$ resalloc ticket-wait 751
+$ IP=13.116.88.91
+$ ssh root@$IP
+# git clone https://github.com/fedora-copr/copr-image-builder.git
+# cd copr-image-builder
+# ./prepare-worker
+# IMAGE_TYPE=qcow2 BUILD_OCI=true ./copr-build-image-bootc.sh
+# exit
+$ scp root@$IP:/root/copr-image-builder/output/qcow2/disk.qcow2 /var/lib/copr/public_html/images/disk.s390x.qcow2
+$ resalloc ticket-close 751
+```
+
+
+
+## Obsolete
+
+The rest of this document is probably outdated and likely to be deleted.
 
 ### HV x86_64
 
