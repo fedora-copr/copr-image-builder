@@ -56,8 +56,8 @@ image-builder upload \
     ./output/image/disk.raw \
     --to aws \
     --aws-ami-name copr-builder-image-x86_64-bootc \
-    --aws-region us-east-2 \
-    --aws-bucket fedora-copr
+    --aws-region us-east-1 \
+    --aws-bucket copr-images
 ```
 
 The `fedora-copr` bucket is in `us-east-2` but builders are in `us-east-1`, so
