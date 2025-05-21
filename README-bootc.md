@@ -45,6 +45,7 @@ $ ssh root@$IP
 # exit
 $ scp -6 root@[$IP]:/root/copr-image-builder/output/image/disk.raw /var/lib/copr/public_html/images/disk.x86_64.raw
 $ resalloc ticket-close 751
+```
 
 
 ## aarch64
