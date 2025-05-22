@@ -155,6 +155,7 @@ EOF
 
 # See the transient-root example
 # https://gitlab.com/fedora/bootc/examples/-/blob/main/transient-root/
+ENV DRACUT_NO_XATTR=1
 RUN set -x; \
     kver=$(cd /usr/lib/modules && echo *); \
     dracut -vf /usr/lib/modules/$kver/initramfs.img $kver
