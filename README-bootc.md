@@ -25,8 +25,14 @@ $ ssh root@$IP
 # ./prepare-worker
 # IMAGE_TYPE=qcow2 BUILD_OCI=true ./copr-build-image-bootc.sh
 # exit
-$ scp -6 root@[$IP]:/root/copr-image-builder/output/qcow2/disk.qcow2 /var/lib/copr/public_html/images/disk.x86_64.qcow
+$ scp -6 root@[$IP]:/root/copr-image-builder/output/qcow2/disk.qcow2 /var/lib/copr/public_html/images/disk.x86_64.qcow2
 $ resalloc ticket-close 751
+
+$ scp /var/lib/copr/public_html/images/disk.x86_64.qcow2 copr@vmhost-x86-copr02.rdu-cc.fedoraproject.org:/tmp/disk.qcow2
+$ ssh copr@vmhost-x86-copr02.rdu-cc.fedoraproject.org
+$ /home/copr/provision/upload-qcow2-images /tmp/disk.qcow2
+$ rm /tmp/disk.qcow2
+$ exit
 ```
 
 ## x86_64 AMI
@@ -81,6 +87,12 @@ $ ssh root@$IP
 # exit
 $ scp -6 root@[$IP]:/root/copr-image-builder/output/qcow2/disk.qcow2 /var/lib/copr/public_html/images/disk.ppc64le.qcow2
 $ resalloc ticket-close 751
+
+$ scp /var/lib/copr/public_html/images/disk.ppc64le.qcow2 copr@vmhost-p08-copr01.rdu-cc.fedoraproject.org:/tmp/disk.qcow2
+$ ssh copr@vmhost-p08-copr01.rdu-cc.fedoraproject.org
+$ /home/copr/provision/upload-qcow2-images /tmp/disk.qcow2
+$ rm /tmp/disk.qcow2
+$ exit
 ```
 
 
@@ -99,6 +111,12 @@ $ ssh root@$IP
 # exit
 $ scp root@$IP:/root/copr-image-builder/output/qcow2/disk.qcow2 /var/lib/copr/public_html/images/disk.s390x.qcow2
 $ resalloc ticket-close 751
+
+$ exit
+# qcow_image=/var/lib/copr/public_html/images/disk.s390x.qcow2
+# podman_image=quay.io/praiskup/ibmcloud-cli
+# export IBMCLOUD_API_KEY=....  # find in Bitwarden
+# podman run -e IBMCLOUD_API_KEY --rm -ti --network=slirp4netns -v $qcow_image:/image.qcow2:z $podman_image upload-image
 ```
 
 
