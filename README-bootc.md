@@ -46,7 +46,6 @@ $ ssh root@$IP
 # git clone https://github.com/fedora-copr/copr-image-builder.git
 # cd copr-image-builder
 # ./prepare-worker
-# IMAGE_TYPE=qcow2 BUILD_OCI=true ./copr-build-image-bootc.sh
 # IMAGE_TYPE=ami BUILD_OCI=true ./copr-build-image-bootc.sh
 # exit
 $ scp -6 root@[$IP]:/root/copr-image-builder/output/image/disk.raw /var/lib/copr/public_html/images/disk.x86_64.raw
