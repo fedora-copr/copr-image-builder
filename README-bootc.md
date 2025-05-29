@@ -50,6 +50,13 @@ $ ssh root@$IP
 # exit
 $ scp -6 root@[$IP]:/root/copr-image-builder/output/image/disk.raw /var/lib/copr/public_html/images/disk.x86_64.raw
 $ resalloc ticket-close 751
+
+$ image-builder upload \
+    /var/lib/copr/public_html/images/disk.x86_64.raw \
+    --to aws \
+    --aws-ami-name copr-builder-image-bootc-x86_64 \
+    --aws-region us-east-1 \
+    --aws-bucket copr-images
 ```
 
 
