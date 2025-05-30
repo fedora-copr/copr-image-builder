@@ -209,3 +209,13 @@ RUN chmod 0755 /usr/local/sbin/enable-swap.sh
 # Enable enable-swap.sh
 # From create_swap_file.yml
 RUN systemctl enable enable-swap
+
+# The fedora-bootc:42 base image is broken now and fails to build into a qcow2.
+# According to Colin Walters, this release fixes it:
+# https://github.com/bootc-dev/bootc/releases/tag/v1.3.0
+# Until it gets to stable, we need to install the update from testing.
+RUN sudo dnf -y upgrade \
+    --refresh \
+    --enablerepo=updates-testing \
+    --advisory=FEDORA-2025-121a0d0b99 \
+    && dnf -y clean all
