@@ -23,7 +23,7 @@ RUN dnf -y remove zram-generator-defaults && dnf -y clean all
 RUN echo "metadata_expire=1h" >> /etc/dnf/dnf.conf
 
 # put infra repos into yum.repos.d
-RUN cat > /etc/yum.repos.d/infra-tags.repo <<EOF
+RUN cat > /etc/yum.repos.d/infra-tags.repo <<'EOF'
 [infrastructure-tags]
 name=Fedora Infrastructure tag $releasever - $basearch
 baseurl=https://kojipkgs.fedoraproject.org/repos-dist/f$releasever-infra/latest/$basearch/
