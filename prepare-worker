@@ -8,3 +8,5 @@ swapoff -a  # disable swap
 mkfs.ext4 -F "$device" -L containers
 mount "$device" /var/lib/containers
 restorecon -RvF /var/lib/containers
+
+mount -o remount,size=3G /run
