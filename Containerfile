@@ -209,3 +209,10 @@ RUN chmod 0755 /usr/local/sbin/enable-swap.sh
 # Enable enable-swap.sh
 # From create_swap_file.yml
 RUN systemctl enable enable-swap
+
+# rpm-ostree does this hack to change the location of the RPM database
+# See https://coreos.github.io/rpm-ostree/#filesystem-layout
+# This doesn't seem to bring any benefits in our situation and causes us
+# problems with the SCM `make_srpm` method. For more details, see
+# https://github.com/fedora-copr/copr/pull/3738
+RUN rm /usr/lib/rpm/macros.d/macros.rpm-ostree
