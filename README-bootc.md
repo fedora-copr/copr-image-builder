@@ -78,6 +78,7 @@ $ resalloc ticket-close 751
 
 $ image-builder upload \
     /var/lib/copr/public_html/images/disk.aarch64.raw \
+    --arch aarch64 \
     --to aws \
     --aws-ami-name copr-builder-image-bootc-$(date +"%Y%m%d-%H%M%S")-aarch64 \
     --aws-region us-east-1 \
