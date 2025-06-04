@@ -54,7 +54,7 @@ $ resalloc ticket-close 751
 $ image-builder upload \
     /var/lib/copr/public_html/images/disk.x86_64.raw \
     --to aws \
-    --aws-ami-name copr-builder-image-bootc-x86_64 \
+    --aws-ami-name copr-builder-image-bootc-$(date +"%Y%m%d-%H%M%S")-x86_64 \
     --aws-region us-east-1 \
     --aws-bucket copr-images
 ```
@@ -79,7 +79,7 @@ $ resalloc ticket-close 751
 $ image-builder upload \
     /var/lib/copr/public_html/images/disk.aarch64.raw \
     --to aws \
-    --aws-ami-name copr-builder-image-bootc-aarch64 \
+    --aws-ami-name copr-builder-image-bootc-$(date +"%Y%m%d-%H%M%S")-aarch64 \
     --aws-region us-east-1 \
     --aws-bucket copr-images
 ```
