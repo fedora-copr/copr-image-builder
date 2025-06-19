@@ -191,8 +191,7 @@ RUN chmod 0755 /etc/rc.d/rc.local
 
 # Install enable-swap.service
 # From create_swap_file.yml
-RUN curl https://pagure.io/fedora-infra/ansible/raw/main/f/roles/copr/backend/files/provision/files/enable-swap.service \
-    > /etc/systemd/system/enable-swap.service
+COPY files/enable-swap.service /etc/systemd/system/enable-swap.service
 
 # On F42 there is no /usr/local/sbin directory anymore but it is still in the
 # PATH. We should use different location but at this moment, we are trying to
@@ -202,8 +201,7 @@ RUN mkdir -p /usr/local/sbin
 
 # Install enable-swap.sh
 # From create_swap_file.yml
-RUN curl https://pagure.io/fedora-infra/ansible/raw/main/f/roles/copr/backend/files/provision/files/enable-swap.sh \
-    > /usr/local/sbin/enable-swap.sh
+COPY files/enable-swap.sh /usr/local/sbin/enable-swap.sh
 RUN chmod 0755 /usr/local/sbin/enable-swap.sh
 
 # Enable enable-swap.sh
