@@ -1,7 +1,5 @@
-# This Dockerfile is based on an ansible playbook for provisioning Copr builders
+# This Containerfile is based on an ansible playbook for provisioning Copr builders
 # https://pagure.io/fedora-infra/ansible/blob/main/f/roles/copr/backend/files/provision/provision_builder_tasks.yml
-# First we build an image from this Dockerfile, then we use Image Builder
-# config.toml blueprint to finish the image.
 
 FROM quay.io/fedora/fedora-bootc:42
 
