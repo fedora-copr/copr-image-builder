@@ -14,7 +14,14 @@ fi
 
 if [ "$BUILD_OCI" == true ]; then
     IMAGE="localhost/copr-builder"
-    sudo podman build --network host -t $IMAGE $CONTEXT || exit 1
+    # The LINUX_IMMUTABLE is needed for doing chattr when building the image.
+    # We use it for Internal Copr builders
+    sudo podman build \
+        --cap-add LINUX_IMMUTABLE \
+        --network host \
+        -t $IMAGE \
+        $CONTEXT \
+        || exit 1
 else
     IMAGE="quay.io/copr/builder"
     sudo podman pull $IMAGE || exit 1
