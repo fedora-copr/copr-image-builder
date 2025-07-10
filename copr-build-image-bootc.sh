@@ -1,6 +1,9 @@
 #!/bin/bash
 
 : "${CONTEXT:=.}"
+: "${BUILD_BOOTC:=true}"
+: "${IMAGE:=localhost/copr-builder}"
+
 
 if [ -z "${IMAGE_TYPE}" ]; then
     echo "Set IMAGE_TYPE to qcow2 or ami"
@@ -13,7 +16,6 @@ if [ -z "${BUILD_OCI}" ]; then
 fi
 
 if [ "$BUILD_OCI" == true ]; then
-    IMAGE="localhost/copr-builder"
     # The LINUX_IMMUTABLE is needed for doing chattr when building the image.
     # We use it for Internal Copr builders
     sudo podman build \
@@ -28,22 +30,24 @@ else
 fi
 
 
-mkdir -p output
-sudo podman run \
-     --rm \
-     -it \
-     --privileged \
-     --pull=newer \
-     --security-opt label=type:unconfined_t \
-     -v ./output:/output \
-     -v /var/lib/containers/storage:/var/lib/containers/storage \
-     quay.io/centos-bootc/bootc-image-builder:latest \
-     --type "$IMAGE_TYPE" \
-     --rootfs xfs \
-     --use-librepo=True \
-     $IMAGE \
-     || exit 1
+if [ "$BUILD_BOOTC" == true ]; then
+    mkdir -p output
+    sudo podman run \
+         --rm \
+         -it \
+         --privileged \
+         --pull=newer \
+         --security-opt label=type:unconfined_t \
+         -v ./output:/output \
+         -v /var/lib/containers/storage:/var/lib/containers/storage \
+         quay.io/centos-bootc/bootc-image-builder:latest \
+         --type "$IMAGE_TYPE" \
+         --rootfs xfs \
+         --use-librepo=True \
+         $IMAGE \
+         || exit 1
 
-echo "Generated image:"
-find output -name disk.qcow2
-find output -name disk.raw
+    echo "Generated image:"
+    find output -name disk.qcow2
+    find output -name disk.raw
+fi
