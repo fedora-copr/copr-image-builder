@@ -1,0 +1,54 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  annotations:
+    build.appstudio.openshift.io/repo: https://github.com/fedora-copr/copr-image-builder?rev={{revision}}
+    build.appstudio.redhat.com/commit_sha: '{{revision}}'
+    build.appstudio.redhat.com/target_branch: '{{target_branch}}'
+    pipelinesascode.tekton.dev/cancel-in-progress: "false"
+    pipelinesascode.tekton.dev/max-keep-runs: "3"
+    pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch
+      == "main"
+  creationTimestamp: null
+  labels:
+    appstudio.openshift.io/application: fedora-copr-builder
+    appstudio.openshift.io/component: copr-image-builder
+    pipelines.appstudio.openshift.io/type: build
+  name: copr-image-builder-on-push
+  namespace: fedora-copr-tenant
+spec:
+  params:
+  - name: git-url
+    value: '{{source_url}}'
+  - name: revision
+    value: '{{revision}}'
+  - name: output-image
+    value: quay.io/redhat-user-workloads/fedora-copr-tenant/copr-image-builder:{{revision}}
+  - name: dockerfile
+    value: Containerfile
+  pipelineRef:
+    resolver: git
+    params:
+      - name: url
+        value: "https://github.com/konflux-ci/olm-operator-konflux-sample.git"
+      - name: revision
+        value: main
+      - name: pathInRepo
+        value: .tekton/multi-arch-build-pipeline.yaml
+  taskRunTemplate:
+    serviceAccountName: build-pipeline-copr-image-builder
+  # Ask for more RAM otherwise we get OOM killed
+  # https://issues.redhat.com/browse/KFLUXSPRT-4322
+  taskRunSpecs:
+    - pipelineTaskName: build-images
+      stepSpecs:
+        - name: sbom-syft-generate
+          computeResources:
+            requests:
+              memory: 10Gi
+            limits:
+              memory: 10Gi
+  workspaces:
+  - name: git-auth
+    secret:
+      secretName: '{{ git_auth_secret }}'
