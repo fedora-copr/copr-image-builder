@@ -25,7 +25,6 @@ if [ "$BUILD_OCI" == true ]; then
         $CONTEXT \
         || exit 1
 else
-    IMAGE="quay.io/copr/builder"
     sudo podman pull $IMAGE || exit 1
 fi
 
