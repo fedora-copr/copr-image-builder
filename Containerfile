@@ -34,11 +34,13 @@ EOF
 # https://fedoraproject.org/wiki/Changes/StrongCryptoSettings
 RUN update-crypto-policies --set DEFAULT:SHA1
 
-# TODO Can we use some syntax that would allow comments for the packages?
+# Document why we need those packages!
+# - parted - /sbin/partprobe needed by enable-swap.service
 RUN dnf -y install \
     cloud-init \
     subscription-manager \
     copr-builder \
+    parted \
     python3-copr-common \
     rpmlint \
     tito \
