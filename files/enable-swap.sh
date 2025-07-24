@@ -29,8 +29,10 @@ elif grep -E 'POWER9|POWER10' /proc/cpuinfo; then
     # OpenStack Power9/Power10 setup. We have only one large volume there.
     # Partitioning using cloud-init isn't trival, especially considering we
     # share the Power8 and Power9 builder images so we create a swap file
-    # on / filesystem.
-    file=/sub-mounts-file
+    # on /var filesystem (btrfs).  Reminder! with bootc, / filesystem is just a
+    # small composefs stored in hosts' /run, see
+    # https://github.com/fedora-copr/copr-image-builder/issues/11.
+    file=/var/sub-mounts-file
     swap_device_base=loop5
     swap_device=/dev/$swap_device_base
 
