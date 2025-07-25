@@ -6,7 +6,7 @@
 
 
 if [ -z "${IMAGE_TYPE}" ]; then
-    echo "Set IMAGE_TYPE to qcow2 or ami"
+    echo "Set IMAGE_TYPE to qcow2, raw or ami (see https://github.com/osbuild/bootc-image-builder?tab=readme-ov-file#-image-types)"
     exit 1
 fi
 
@@ -47,6 +47,18 @@ if [ "$BUILD_BOOTC" == true ]; then
          || exit 1
 
     echo "Generated image:"
-    find output -name disk.qcow2
-    find output -name disk.raw
+
+    case $IMAGE_TYPE in
+    qcow2)
+        find output -name disk.qcow2
+        ;;
+    ami)
+        image=$(find output -name disk.raw)
+        mv "$image" "${image//.raw/.ami}"
+        find output -name disk.ami
+        ;;
+    raw)
+        find output -name disk.raw
+        ;;
+    esac
 fi
