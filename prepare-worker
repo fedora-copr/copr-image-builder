@@ -10,3 +10,4 @@ mount "$device" /var/lib/containers
 restorecon -RvF /var/lib/containers
 
 mount -o remount,size=3G /run
+mount -o remount,size=8G /tmp
