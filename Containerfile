@@ -115,7 +115,7 @@ RUN systemctl disable dnf-makecache.timer
 RUN systemctl disable dnf-makecache.service
 
 # We don't plan to apply changes (requires reboot)
-RUN systemctl disable bootc-fetch-apply-updates.timer
+RUN systemctl mask bootc-fetch-apply-updates.timer
 
 # NetworkManager-wait-online takes too long on VMS on our hypervisors.  And we
 # don't seem to need hcn-init service triggering that.
