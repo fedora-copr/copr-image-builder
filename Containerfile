@@ -36,10 +36,12 @@ RUN update-crypto-policies --set DEFAULT:SHA1
 
 # Document why we need those packages!
 # - parted - /sbin/partprobe needed by enable-swap.service
+# - qemu-guest-agent - make sure libvirt knows IP addresses
 RUN dnf -y install \
     cloud-init \
     subscription-manager \
     copr-builder \
+    qemu-guest-agent \
     parted \
     python3-copr-common \
     rpmlint \
