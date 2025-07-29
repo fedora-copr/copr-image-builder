@@ -25,13 +25,17 @@ spec:
   - name: output-image
     value: quay.io/redhat-user-workloads/fedora-copr-tenant/copr-image-builder:{{revision}}
   - name: dockerfile
-    value: Containerfile
+    value: /Containerfile
   - name: build-platforms
     value:
       - linux/x86_64
       - linux/arm64
       - linux/ppc64le
       - linux/s390x
+  timeouts:
+    finally: 4h0m0s
+    pipeline: 9h0m0s
+    tasks: 4h0m0s
   pipelineRef:
     resolver: git
     params:
@@ -54,6 +58,12 @@ spec:
               memory: 10Gi
             limits:
               memory: 10Gi
+    - pipelineTaskName: clamav-scan
+      stepSpecs:
+        - name: extract-and-scan-image
+          computeResources:
+            limits:
+              memory: "12Gi"
   workspaces:
   - name: git-auth
     secret:
