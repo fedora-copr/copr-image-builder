@@ -10,13 +10,14 @@ generic_mount()
 {
     # Find a "very large" volume — that one will be used (IBM Cloud assigns the
     # swap volume name randomly, hypervisors have /var/vdb).
-    for vol in /dev/vdb /dev/vdc /dev/vdd /dev/vda; do
-       mount | grep $vol && continue
-       size=$(blockdev --getsize64 "$vol")
-       test "$size" -le 150000000000 && continue
-       swap_device=$vol
-       part_suffix=
-       break
+    for vol in /dev/vdb /dev/vdc /dev/vdd /dev/vda /dev/sda /dev/sdb /dev/sdc /dev/sdd; do
+        [ -e "$vol" ] || continue
+        mount | grep $vol && continue
+        size=$(blockdev --getsize64 "$vol")
+        test "$size" -le 150000000000 && continue
+        swap_device=$vol
+        part_suffix=
+        break
     done
 }
 
@@ -25,7 +26,7 @@ if test -f /config/resalloc-vars.sh; then
     # VMs on our hypervisors have this file created, providing some basic info
     # about the "pool ID" (== particular hypervisor).
     generic_mount
-elif grep -E 'POWER9|POWER10' /proc/cpuinfo; then
+elif grep -E 'POWER9|POWER10' /proc/cpuinfo && ! test -f /etc/copr-builder/powervs-enabled; then
     # OpenStack Power9/Power10 setup. We have only one large volume there.
     # Partitioning using cloud-init isn't trival, especially considering we
     # share the Power8 and Power9 builder images so we create a swap file
