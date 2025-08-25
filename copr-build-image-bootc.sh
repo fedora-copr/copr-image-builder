@@ -3,6 +3,7 @@
 : "${CONTEXT:=.}"
 : "${BUILD_BOOTC:=true}"
 : "${IMAGE:=localhost/copr-builder}"
+: "${POWERVS:=false}"
 
 
 if [ -z "${IMAGE_TYPE}" ]; then
@@ -21,6 +22,7 @@ if [ "$BUILD_OCI" == true ]; then
     sudo podman build \
         --cap-add LINUX_IMMUTABLE \
         --network host \
+        --build-arg POWERVS=${POWERVS} \
         -t $IMAGE \
         $CONTEXT \
         || exit 1
@@ -43,7 +45,7 @@ if [ "$BUILD_BOOTC" == true ]; then
          --type "$IMAGE_TYPE" \
          --rootfs xfs \
          --use-librepo=True \
-         $IMAGE \
+         "$IMAGE" \
          || exit 1
 
     echo "Generated image:"

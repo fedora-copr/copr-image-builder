@@ -3,6 +3,9 @@
 
 FROM quay.io/fedora/fedora-bootc:42@sha256:f5f58f8758ac842f2edc2445c0d95b0f0d7c7123b3fd7e58e8db871214a17ec0
 
+# Will image run on PowerVS?
+ARG POWERVS=false
+
 # Disable zram SWAP on builders, it is too small, issue 2077
 RUN dnf -y remove zram-generator-defaults && dnf -y clean all
 
@@ -193,6 +196,14 @@ test -e /config/eimg-early-script.sh || { umount /config && exit 0 ; }
 sh -x /config/eimg-early-script.sh
 EOF
 RUN chmod 0755 /etc/rc.d/rc.local
+
+# Directory for configuration flags
+RUN mkdir -p /etc/copr-builder
+
+# When this flag exists, the osuosl hack in enable-swap.sh will be SKIPPED
+RUN if [ "$POWERVS" = "true" ]; then \
+        echo "Running on PowerVS" > /etc/copr-builder/powervs-enabled; \
+    fi
 
 # Install enable-swap.service
 # From create_swap_file.yml
