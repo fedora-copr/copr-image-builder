@@ -57,7 +57,7 @@ try_indefinitely()
 # $1 location where to create files
 # $2 swap size, e.g. 100G
 # outputs: $results_storage and $swap_storage
-mountpoins_as_files()
+mountpoints_as_files()
 {
     location=$1
     swap_size=$2
@@ -78,14 +78,16 @@ systemctl start tmp.mount
 generic_mount()
 {
     # Find a "very large" volume — that one will be used (IBM Cloud assigns the
-    # swap volume name randomly, hypervisors have /var/vdb).
-    for vol in /dev/vdb /dev/vdc /dev/vdd /dev/vda; do
+    # swap volume name randomly, hypervisors have /var/vdb). PowerVS uses /dev/sdX.
+    for vol in /dev/vdb /dev/vdc /dev/vdd /dev/vda /dev/sda /dev/sdb /dev/sdc /dev/sdd; do
+       test -e "$vol" || continue
        mount | grep $vol && continue
        size=$(blockdev --getsize64 "$vol")
        test "$size" -le 150000000000 && continue
        repartition_device "$vol" ""
-       break
+       return 0
     done
+    return 1
 }
 
 
@@ -95,20 +97,31 @@ if test -f /config/resalloc-vars.sh; then
     # prepare /dev/vdN device, detect it and partition in.
     generic_mount
 elif grep -E 'POWER9|POWER10' /proc/cpuinfo; then
-    # OpenStack Power9/Power10 setup. We have only one large volume there.
-    # Partitioning using cloud-init isn't trival, especially considering we
+    # Power architecture (ppc64le) - could be OSUOSL OpenStack or IBM Cloud PowerVS.
+    #
+    # PowerVS provides block devices on /dev/sdX
+    #
+    # OSUOSL OpenStack Power9/Power10 setup has only one large root volume and
+    # no secondary disk. We need to create swap/results storage as files on /var.
+    # Partitioning using cloud-init isn't trivial, especially considering we
     # share the Power8 and Power9 builder images so we create a swap file
-    # on /var filesystem (btrfs).  Reminder! with bootc, / filesystem is just a
+    # on /var filesystem.  Reminder! with bootc, / filesystem is just a
     # small composefs stored in hosts' /run, see
     # https://github.com/fedora-copr/copr-image-builder/issues/11.
-    if grep POWER10 /proc/cpuinfo; then
-        # WARNING/TODO: this is for powerful builders only, but it's hardcoded
-        # and will stop working once we switch to p10. The setup should be done
-        # generically, as stated in the comment above, so the large swap file
-        # is created automatically upon the on_demand_powerful tag configuration.
-        mountpoins_as_files /var 294G
-    else
-        mountpoins_as_files /var 148G
+    #
+    # Try to find a large secondary volume first (PowerVS case), otherwise
+    # fall back to file-based storage (OSUOSL case).
+    if ! generic_mount; then
+        # No suitable block device found - use file-based storage (OSUOSL)
+        if grep POWER10 /proc/cpuinfo; then
+            # WARNING/TODO: this is for powerful builders only, but it's hardcoded
+            # and will stop working once we switch to p10. The setup should be done
+            # generically, as stated in the comment above, so the large swap file
+            # is created automatically upon the on_demand_powerful tag configuration.
+            mountpoints_as_files /var 294G
+        else
+            mountpoints_as_files /var 148G
+        fi
     fi
 elif test -e /dev/nvme1n1; then
     # AWS x86_64 or aarch64 machine.

@@ -43,7 +43,7 @@ if [ "$BUILD_BOOTC" == true ]; then
          --type "$IMAGE_TYPE" \
          --rootfs xfs \
          --use-librepo=True \
-         $IMAGE \
+         "$IMAGE" \
          || exit 1
 
     echo "Generated image:"
