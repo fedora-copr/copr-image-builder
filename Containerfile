@@ -34,7 +34,7 @@ EOF
 RUN update-crypto-policies --set DEFAULT:SHA1
 
 # Document why we need those packages!
-# - parted - /sbin/partprobe needed by enable-swap.service
+# - parted - /sbin/partprobe needed by copr-partitions.service
 # - qemu-guest-agent - make sure libvirt knows IP addresses
 RUN dnf -y install \
     cloud-init \
@@ -193,9 +193,9 @@ sh -x /config/eimg-early-script.sh
 EOF
 RUN chmod 0755 /etc/rc.d/rc.local
 
-# Install enable-swap.service
+# Install copr-partitions.service
 # From create_swap_file.yml
-COPY files/enable-swap.service /etc/systemd/system/enable-swap.service
+COPY files/copr-partitions.service /etc/systemd/system/copr-partitions.service
 
 # On F42 there is no /usr/local/sbin directory anymore but it is still in the
 # PATH. We should use different location but at this moment, we are trying to
@@ -203,14 +203,14 @@ COPY files/enable-swap.service /etc/systemd/system/enable-swap.service
 # playbook, as posible
 RUN mkdir -p /usr/local/sbin
 
-# Install enable-swap.sh
+# Install copr-partitions.sh.
 # From create_swap_file.yml
-COPY files/enable-swap.sh /usr/local/sbin/enable-swap.sh
-RUN chmod 0755 /usr/local/sbin/enable-swap.sh
+COPY files/copr-partitions.sh /usr/local/sbin/
+RUN chmod 0755 /usr/local/sbin/copr-partitions.sh
 
-# Enable enable-swap.sh
+# Enable copr-partitions.service
 # From create_swap_file.yml
-RUN systemctl enable enable-swap
+RUN systemctl enable copr-partitions
 
 # rpm-ostree does this hack to change the location of the RPM database
 # See https://coreos.github.io/rpm-ostree/#filesystem-layout
