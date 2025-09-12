@@ -1,11 +1,11 @@
 [Unit]
-Description=Enable swap on /dev/nvme0n1
+Description=Repartition Copr ephemeral disk
 After=network.target
 After=rc-local.service
 
 [Service]
 Type=simple
-ExecStart=/usr/local/sbin/enable-swap.sh
+ExecStart=/usr/local/sbin/copr-partitions.sh
 TimeoutStartSec=0
 
 [Install]
