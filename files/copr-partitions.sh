@@ -45,6 +45,13 @@ w
     swap_storage=$device${part_suffix}2
 }
 
+try_indefinitely()
+{
+    while :; do
+        "$@" && break
+        sleep 2
+    done
+}
 
 # Prepare large files if we don't have device to work with.
 # $1 location where to create files
@@ -55,10 +62,10 @@ mountpoins_as_files()
     location=$1
     swap_size=$2
     results_storage=$location/ext4-results
-    fallocate -l "$results_size" "$results_storage"
+    try_indefinitely fallocate -l "$results_size" "$results_storage"
 
     swap_storage=$location/swap
-    fallocate -l "$swap_size" "$swap_storage"
+    try_indefinitely fallocate -l "$swap_size" "$swap_storage"
 }
 
 
