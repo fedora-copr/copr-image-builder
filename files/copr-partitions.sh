@@ -110,14 +110,19 @@ elif grep -E 'POWER9|POWER10' /proc/cpuinfo; then
     else
         mountpoins_as_files /var 148G
     fi
-elif test -e /dev/xvda1 && test -e /dev/nvme0n1; then
-    # AWS aarch64 machine.  We use separate volume allocation as the default
-    # root disk in our instance type is too small.
-    repartition_device /dev/nvme0n1 "p"
 elif test -e /dev/nvme1n1; then
-    # AWS x86_64 machine.  There's >= 400G space on the default volume in our
-    # instance type.
-    repartition_device /dev/nvme1n1 "p"
+    # AWS x86_64 or aarch64 machine.
+    # There's >= 400G space on the default volume in our instance type. However,
+    # sometimes the devices can attach in an unexpected order, so we have to
+    # pick the correct device.
+    size0=$(blockdev --getsize64 "/dev/nvme0n1")
+    size1=$(blockdev --getsize64 "/dev/nvme1n1")
+
+    if test "$size0" -ge "$size1"; then
+        repartition_device /dev/nvme0n1 "p"
+    else
+        repartition_device /dev/nvme1n1 "p"
+    fi
 else
     # This should be a machine in IBM Cloud, /dev/vdX pattern.
     generic_mount
