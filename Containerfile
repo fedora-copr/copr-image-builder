@@ -1,6 +1,6 @@
 # This Containerfile is based on an ansible playbook for provisioning Copr builders
 # https://pagure.io/fedora-infra/ansible/blob/main/f/roles/copr/backend/files/provision/provision_builder_tasks.yml
-FROM quay.io/fedora/fedora-bootc:43@sha256:9aa313086c4d4c74e1aafd57792615fdce18e8f53519c9d88a284a8f85ce61ea
+FROM quay.io/fedora/fedora-bootc:43@sha256:4f23d1dc70a7ad2d78bb42a02c54c6dbf746c80b62d383db88311b980a22bd01
 
 # Disable zram SWAP on builders, it is too small, issue 2077
 RUN dnf -y remove zram-generator-defaults && dnf -y clean all
