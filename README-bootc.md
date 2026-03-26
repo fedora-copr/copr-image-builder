@@ -1,4 +1,4 @@
 # Copr Image Builder
 
 Documentation moved to
-https://docs.pagure.org/copr.copr/how_to_upgrade_builders.html
+https://docs.copr.fedorainfracloud.org/how_to_upgrade_builders.html
