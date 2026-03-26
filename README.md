@@ -1,7 +1,7 @@
 # Copr Image Builder
 
 Please follow the instructions for building new images:
-https://docs.pagure.org/copr.copr/how_to_upgrade_builders.html
+https://docs.copr.fedorainfracloud.org/how_to_upgrade_builders.html
 
 
 ## End Goals
