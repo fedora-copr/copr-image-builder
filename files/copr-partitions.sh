@@ -1,5 +1,15 @@
 #!/usr/bin/bash
 
+# This script runs once at boot (via copr-partitions.service) and prepares
+# the builder's storage:
+#   1) A 16G ext4 partition for build results (/var/lib/copr-rpmbuild)
+#   2) The rest of the disk as swap (used by mock as a cache backing store
+#      so builds don't run out of space on tmpfs)
+#
+# Handles all environments. The partitioning logic is:
+#   - Try to find a large (>150G) unmounted block device and partition it
+#   - If none found, fall back to file-based storage on /var
+
 set -x
 set -e
 
@@ -7,7 +17,7 @@ set -e
 results_storage=
 swap_storage=
 
-# global config
+# how much space to reserve for build results config
 results_size=16G
 results_dir=/var/lib/copr-rpmbuild
 
@@ -18,9 +28,9 @@ results_dir=/var/lib/copr-rpmbuild
 # outputs: $results_storage and $swap_storage
 repartition_device()
 {
-device=$1
-part_suffix=$2
-echo "\
+    device=$1
+    part_suffix=$2
+    echo "\
 n
 p
 
@@ -45,6 +55,7 @@ w
     swap_storage=$device${part_suffix}2
 }
 
+
 try_indefinitely()
 {
     while :; do
@@ -57,7 +68,7 @@ try_indefinitely()
 # $1 location where to create files
 # $2 swap size, e.g. 100G
 # outputs: $results_storage and $swap_storage
-mountpoins_as_files()
+mountpoints_as_files()
 {
     location=$1
     swap_size=$2
@@ -66,6 +77,7 @@ mountpoins_as_files()
 
     swap_storage=$location/swap
     try_indefinitely fallocate -l "$swap_size" "$swap_storage"
+    chmod 0600 "$swap_storage"
 }
 
 
@@ -75,59 +87,58 @@ systemctl unmask tmp.mount
 systemctl start tmp.mount
 
 
+# Try to find a large unmounted block device.  Covers:
+#   /dev/vd[a-e]          -- virtio disks (hypervisors, IBM Cloud VPC)
+#   /dev/sd[a-e]          -- SCSI disks (HV with bus=scsi, PowerVS)
+#   /dev/nvme[0-9]n[0-9]  -- NVMe devices (AWS)
+#
+# Skips devices that are already mounted (root disk) or too small (<150G,
+# e.g. OpenStack ephemeral disks).  Returns 0 on success, 1 if nothing found.
 generic_mount()
 {
-    # Find a "very large" volume — that one will be used (IBM Cloud assigns the
-    # swap volume name randomly, hypervisors have /var/vdb).
-    for vol in /dev/vdb /dev/vdc /dev/vdd /dev/vda; do
-       mount | grep $vol && continue
-       size=$(blockdev --getsize64 "$vol")
-       test "$size" -le 150000000000 && continue
-       repartition_device "$vol" ""
-       break
+    # Single-digit suffixes are intentional -- Copr builders never have 10+ disks.
+    for vol in /dev/vd[a-z] /dev/sd[a-z] /dev/nvme[0-9]n[0-9]; do
+        test -b "$vol" || continue
+        mount | grep -q "$vol" && continue
+        # skip disks that already have partitions (e.g. root disk)
+        lsblk -ln -o TYPE "$vol" | grep -q part && continue
+        size=$(blockdev --getsize64 "$vol") || continue
+        test "$size" -le 150000000000 && continue
+
+        case $vol in
+            /dev/nvme*)
+                repartition_device "$vol" "p"
+                ;;
+            *)
+                repartition_device "$vol" ""
+                ;;
+        esac
+        return 0
     done
+    return 1
 }
 
 
-if test -f /config/resalloc-vars.sh; then
-    # VMs on our hypervisors have this file created, providing some basic info
-    # about the "pool ID" (== particular hypervisor).  On hypervisors, we
-    # prepare /dev/vdN device, detect it and partition in.
-    generic_mount
-elif grep -E 'POWER9|POWER10' /proc/cpuinfo; then
-    # OpenStack Power9/Power10 setup. We have only one large volume there.
-    # Partitioning using cloud-init isn't trival, especially considering we
-    # share the Power8 and Power9 builder images so we create a swap file
-    # on /var filesystem (btrfs).  Reminder! with bootc, / filesystem is just a
-    # small composefs stored in hosts' /run, see
-    # https://github.com/fedora-copr/copr-image-builder/issues/11.
-    if grep POWER10 /proc/cpuinfo; then
-        # WARNING/TODO: this is for powerful builders only, but it's hardcoded
-        # and will stop working once we switch to p10. The setup should be done
-        # generically, as stated in the comment above, so the large swap file
-        # is created automatically upon the on_demand_powerful tag configuration.
-        mountpoins_as_files /var 294G
-    else
-        mountpoins_as_files /var 148G
-    fi
-elif test -e /dev/nvme1n1; then
-    # AWS x86_64 or aarch64 machine.
-    # There's >= 400G space on the default volume in our instance type. However,
-    # sometimes the devices can attach in an unexpected order, so we have to
-    # pick the correct device.
-    size0=$(blockdev --getsize64 "/dev/nvme0n1")
-    size1=$(blockdev --getsize64 "/dev/nvme1n1")
-
-    if test "$size0" -ge "$size1"; then
-        repartition_device /dev/nvme0n1 "p"
-    else
-        repartition_device /dev/nvme1n1 "p"
-    fi
+if generic_mount; then
+    :
 else
-    # This should be a machine in IBM Cloud, /dev/vdX pattern.
-    generic_mount
+    # No suitable block device.  Fall back to file-based storage on /var.
+    # This happens on OSUOSL Power builders which only have a root disk.
+    # Calculate swap size dynamically from available /var space.
+    avail_gb=$(df -BG --output=avail /var | tail -1 | tr -dc '0-9')
+    avail_gb=${avail_gb:-0}
+    # Reserve 16G for results + 10G buffer for the OS
+    swap_gb=$((avail_gb - 26))
+
+    if [ "$swap_gb" -le 30 ]; then
+        echo >&2 "No ephemeral disk and insufficient /var space (${avail_gb}G available)"
+        exit 1
+    fi
+    mountpoints_as_files /var ${swap_gb}G
 fi
 
+
+# format and mount the results partition
 mkfs.ext4 "$results_storage"
 mount "$results_storage" "$results_dir"
 
