@@ -51,6 +51,17 @@ RUN dnf -y install \
     python3-libdnf5 \
     && dnf -y clean all
 
+# Workaround: bootupd on ppc64le fails to find PReP partition in bwrap namespace.
+# Fixed in bootupd main (bootc-internal-blockdev 1.15.2) but not yet released.
+# Remove once bootupd >= 0.2.35 lands in Fedora.
+# https://github.com/bootc-dev/bootc/issues/2220
+# https://github.com/osbuild/bootc-image-builder/issues/1223
+ARG TARGETARCH
+RUN if [ "$TARGETARCH" = "ppc64le" ]; then \
+      dnf -y upgrade https://kojipkgs.fedoraproject.org//work/tasks/6497/146206497/bootupd-0.2.34-1.1.fc44.ppc64le.rpm && \
+      dnf -y clean all; \
+    fi
+
 # TODO Collect facts about builder hardware
 # We can probably skip this, it looks like starting_builder task
 
