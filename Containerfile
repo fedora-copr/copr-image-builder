@@ -51,7 +51,9 @@ RUN dnf -y install \
 # https://github.com/osbuild/bootc-image-builder/issues/1223
 ARG TARGETARCH
 RUN if [ "$TARGETARCH" = "ppc64le" ]; then \
-    dnf -y install https://kojipkgs.fedoraproject.org//packages/bootc/1.10.0/2.fc44/ppc64le/bootc-1.10.0-2.fc44.ppc64le.rpm \
+    dnf -y install \
+        https://kojipkgs.fedoraproject.org//packages/bootc/1.10.0/2.fc44/ppc64le/bootc-1.10.0-2.fc44.ppc64le.rpm \
+        https://kojipkgs.fedoraproject.org//packages/bootc/1.10.0/2.fc44/ppc64le/system-reinstall-bootc-1.10.0-2.fc44.ppc64le.rpm \
     && dnf -y clean all; \
     fi
 
