@@ -49,7 +49,7 @@ RUN dnf -y install \
     && dnf -y clean all
 
 # https://github.com/osbuild/bootc-image-builder/issues/1223
-RUN dnf -y install bootc-1.12.1-1.fc44 && dnf -y clean all
+RUN dnf -y install bootc-1.10.0-2.fc44 && dnf -y clean all
 
 # TODO Collect facts about builder hardware
 # We can probably skip this, it looks like starting_builder task
