@@ -1,6 +1,6 @@
 # This Containerfile is based on an ansible playbook for provisioning Copr builders
 # https://pagure.io/fedora-infra/ansible/blob/main/f/roles/copr/backend/files/provision/provision_builder_tasks.yml
-FROM quay.io/fedora/fedora-bootc:44@sha256:e3eaca476d25a47aec32f15fc5ee939a15a40d2cf163bc722d0a598d33558484
+FROM quay.io/fedora/fedora-bootc:44
 
 # TODO work-around for wrongly generated ami
 # I guess we can remove this?
