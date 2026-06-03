@@ -1,6 +1,6 @@
 # This Containerfile is based on an ansible playbook for provisioning Copr builders
 # https://pagure.io/fedora-infra/ansible/blob/main/f/roles/copr/backend/files/provision/provision_builder_tasks.yml
-FROM quay.io/fedora/fedora-bootc:44@sha256:e3eaca476d25a47aec32f15fc5ee939a15a40d2cf163bc722d0a598d33558484
+FROM quay.io/fedora/fedora-bootc:44
 
 # TODO work-around for wrongly generated ami
 # I guess we can remove this?
@@ -47,6 +47,18 @@ RUN dnf -y install \
     pyp2spec \
     python3-libdnf5 \
     && dnf -y clean all
+
+# https://github.com/osbuild/bootc-image-builder/issues/1223
+# ARG TARGETARCH
+# RUN if [ "$TARGETARCH" = "ppc64le" ]; then \
+#     dnf -y install \
+#         https://kojipkgs.fedoraproject.org//packages/bootc/1.10.0/2.fc44/ppc64le/bootc-1.10.0-2.fc44.ppc64le.rpm \
+#         https://kojipkgs.fedoraproject.org//packages/bootc/1.10.0/2.fc44/ppc64le/system-reinstall-bootc-1.10.0-2.fc44.ppc64le.rpm \
+#     && dnf -y clean all; \
+#     fi
+
+# https://github.com/osbuild/bootc-image-builder/issues/1223
+RUN dnf -y install bootc-1.11.0-2.fc44 && dnf -y clean all
 
 # TODO Collect facts about builder hardware
 # We can probably skip this, it looks like starting_builder task
