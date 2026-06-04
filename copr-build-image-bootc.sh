@@ -53,7 +53,7 @@ if [ "$BUILD_BOOTC" == true ]; then
         find output -name disk.qcow2
         ;;
     ami)
-        image=$(find output -name disk.raw)
+        image=$(find -L output -name disk.raw)
         mv "$image" "${image//.raw/.ami}"
         find output -name disk.ami
         ;;
